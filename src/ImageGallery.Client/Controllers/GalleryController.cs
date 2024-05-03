@@ -33,10 +33,14 @@ public class GalleryController : Controller
             HttpMethod.Get,
             "/api/images/");
 
+
+
         var response = await httpClient.SendAsync(
             request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
 
 
+        if (!response.IsSuccessStatusCode)
+            return Redirect("/Authentication/logout");
         response.EnsureSuccessStatusCode();
 
         using (var responseStream = await response.Content.ReadAsStreamAsync())
@@ -131,6 +135,7 @@ public class GalleryController : Controller
         return RedirectToAction("Index");
     }
 
+    [Authorize(Roles ="PayingUser")]
     public IActionResult AddImage()
     {
         return View();
@@ -138,6 +143,7 @@ public class GalleryController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles ="PayingUser")]
     public async Task<IActionResult> AddImage(AddImageViewModel addImageViewModel)
     {
         if (!ModelState.IsValid)
@@ -191,6 +197,8 @@ public class GalleryController : Controller
         //get the saved identity token
         var identityToken = await HttpContext.GetTokenAsync(OpenIdConnectParameterNames.IdToken);
 
+        var accessToken = await HttpContext.GetTokenAsync(OpenIdConnectParameterNames.AccessToken);
+
         var userClaimsStringBuilder = new StringBuilder();
         foreach (var claim in User.Claims)
             userClaimsStringBuilder.AppendLine($"Claim Type: {claim.Type} - Claim value: {claim.Value}");
@@ -199,6 +207,8 @@ public class GalleryController : Controller
         _logger.LogInformation(@$"Identity token & user claims: 
 {identityToken}
 {userClaimsStringBuilder}");
+
+        _logger.LogInformation($"Access Token: {accessToken}");
 
     }
 }

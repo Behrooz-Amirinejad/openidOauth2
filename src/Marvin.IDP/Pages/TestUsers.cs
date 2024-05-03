@@ -22,29 +22,31 @@ public static class TestUsers
                 postal_code = "69118",
                 country = "Germany"
             };
-                
+
             return new List<TestUser>
             {
                 new TestUser
                 {
-                    SubjectId = "26AEBC36-FBE7-48FC-B0ED-C96729FEE238",
+                    SubjectId = "d860efca-22d9-47fd-8249-791ba61b07c7",
                     Username = "ali",
                     Password = "ali",
                     Claims = new List<Claim>()
                     {
                         new Claim(JwtClaimTypes.GivenName , "Ali"),
-                        new Claim(JwtClaimTypes.FamilyName , "Alireza")
+                        new Claim(JwtClaimTypes.FamilyName , "Alireza"),
+                        new Claim("role","FreeUser")
                     }
                 },
                 new TestUser
                 {
-                    SubjectId = "122F2F50-FBC1-4369-9A03-A618FFE51D1A",
+                    SubjectId = "b7539694-97e7-4dfe-84da-b4256e1ff5c7",
                     Username = "ben",
                     Password = "ben",
                     Claims =
                     {
                         new Claim(JwtClaimTypes.GivenName , "Ben"),
-                        new Claim(JwtClaimTypes.FamilyName , "Benza")
+                        new Claim(JwtClaimTypes.FamilyName , "Benza"),
+                        new Claim("role","PayingUser")
                     }
                 }
             };

@@ -1,36 +1,45 @@
 ﻿using AutoMapper;
 using ImageGallery.API.Services;
 using ImageGallery.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace ImageGallery.API.Controllers
 {
     [Route("api/images")]
     [ApiController]
+    [Authorize]
     public class ImagesController : ControllerBase
     {
         private readonly IGalleryRepository _galleryRepository;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IMapper _mapper;
+        private readonly Logger<ImagesController> _logger;
 
-        public ImagesController(
-            IGalleryRepository galleryRepository,
-            IWebHostEnvironment hostingEnvironment,
-            IMapper mapper)
+        public ImagesController(IGalleryRepository galleryRepository,
+                                IWebHostEnvironment hostingEnvironment,
+                                IMapper mapper)
         {
-            _galleryRepository = galleryRepository ?? 
+            _galleryRepository = galleryRepository ??
                 throw new ArgumentNullException(nameof(galleryRepository));
-            _hostingEnvironment = hostingEnvironment ?? 
+            _hostingEnvironment = hostingEnvironment ??
                 throw new ArgumentNullException(nameof(hostingEnvironment));
-            _mapper = mapper ?? 
+            _mapper = mapper ??
                 throw new ArgumentNullException(nameof(mapper));
+            // this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpGet()]
+        
         public async Task<ActionResult<IEnumerable<Image>>> GetImages()
         {
+            WriteClaims();
+
+            var ownerID = User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value;
+
             // get from repo
-            var imagesFromRepo = await _galleryRepository.GetImagesAsync();
+            var imagesFromRepo = await _galleryRepository.GetImagesAsync(ownerID);
 
             // map to model
             var imagesToReturn = _mapper.Map<IEnumerable<Image>>(imagesFromRepo);
@@ -39,9 +48,17 @@ namespace ImageGallery.API.Controllers
             return Ok(imagesToReturn);
         }
 
+        private void WriteClaims()
+        {
+            foreach (var claim in User.Claims)
+            {
+                Console.WriteLine($" claims: {claim.Type} == {claim.Value}");
+            }
+        }
+
         [HttpGet("{id}", Name = "GetImage")]
         public async Task<ActionResult<Image>> GetImage(Guid id)
-        {          
+        {
             var imageFromRepo = await _galleryRepository.GetImageAsync(id);
 
             if (imageFromRepo == null)
@@ -55,6 +72,7 @@ namespace ImageGallery.API.Controllers
         }
 
         [HttpPost()]
+        [Authorize(Roles = "PayingUser")]
         public async Task<ActionResult<Image>> CreateImage([FromBody] ImageForCreation imageForCreation)
         {
             // Automapper maps only the Title in our configuration
@@ -69,7 +87,7 @@ namespace ImageGallery.API.Controllers
 
             // create the filename
             string fileName = Guid.NewGuid().ToString() + ".jpg";
-            
+
             // the full file path
             var filePath = Path.Combine($"{webRootPath}/images/{fileName}");
 
@@ -82,6 +100,13 @@ namespace ImageGallery.API.Controllers
             // ownerId should be set - can't save image in starter solution, will
             // be fixed during the course
             //imageEntity.OwnerId = ...;
+
+            var ownerId = User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value;
+
+            if (string.IsNullOrEmpty(ownerId))
+                throw new Exception("user identifier is missing from token!");
+            
+            imageEntity.OwnerId = ownerId;
 
             // add and save.  
             _galleryRepository.AddImage(imageEntity);
@@ -97,7 +122,7 @@ namespace ImageGallery.API.Controllers
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteImage(Guid id)
-        {            
+        {
             var imageFromRepo = await _galleryRepository.GetImageAsync(id);
 
             if (imageFromRepo == null)
@@ -113,7 +138,7 @@ namespace ImageGallery.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateImage(Guid id, 
+        public async Task<IActionResult> UpdateImage(Guid id,
             [FromBody] ImageForUpdate imageForUpdate)
         {
             var imageFromRepo = await _galleryRepository.GetImageAsync(id);

@@ -1,6 +1,7 @@
 ﻿using ImageGallery.API.DbContexts;
 using ImageGallery.API.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace ImageGallery.API.Services
 {
@@ -24,10 +25,12 @@ namespace ImageGallery.API.Services
             return await _context.Images.FirstOrDefaultAsync(i => i.Id == id);
         }
   
-        public async Task<IEnumerable<Image>> GetImagesAsync()
+        public async Task<IEnumerable<Image>> GetImagesAsync(string? ownerID = null, Expression<Func<Image, bool>> filter = null)
         {
-            return await _context.Images
-                .OrderBy(i => i.Title).ToListAsync();
+            return await _context.Images.Where(x => x.OwnerId == ownerID)
+                                        .OrderBy(i => i.Title)
+                                        .AsNoTracking()
+                                        .ToListAsync();
         }
 
         public async Task<bool> IsImageOwnerAsync(Guid id, string ownerId)

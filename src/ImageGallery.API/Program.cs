@@ -1,6 +1,9 @@
 using ImageGallery.API.DbContexts;
 using ImageGallery.API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Xml;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +24,24 @@ builder.Services.AddScoped<IGalleryRepository, GalleryRepository>();
 // register AutoMapper-related services
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+// this line of code is used for .net7.0 and before
+//JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+// this line of code is used only for in .net 8.0 and afterward
+Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(opt =>
+                {
+                    opt.Authority = "https://localhost:5001";
+                    opt.Audience = "imagegalleryapi";
+                    opt.TokenValidationParameters = new()
+                    {
+                        NameClaimType = "given_name",
+                        RoleClaimType = "role",
+                        ValidTypes = new[] { "at+jwt" }
+                    };
+                });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -29,6 +50,7 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

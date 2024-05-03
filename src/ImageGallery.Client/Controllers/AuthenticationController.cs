@@ -17,5 +17,10 @@ namespace ImageGallery.Client.Controllers
             // redirect to UDP linked to scheme
             await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
         }
+
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
     }
 }
