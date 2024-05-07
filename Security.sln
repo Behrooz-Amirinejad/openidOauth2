@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageGallery.Model", "src\I
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageGallery.API", "src\ImageGallery.API\ImageGallery.API.csproj", "{C41B3153-E70A-4E9D-B058-26EA5B949823}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGallery.Authorization", "src\ImageGallery.Authorization\ImageGallery.Authorization.csproj", "{36A5BAA9-48A8-4B8C-B19F-4DAC9F8A8C32}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{C41B3153-E70A-4E9D-B058-26EA5B949823}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C41B3153-E70A-4E9D-B058-26EA5B949823}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C41B3153-E70A-4E9D-B058-26EA5B949823}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36A5BAA9-48A8-4B8C-B19F-4DAC9F8A8C32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36A5BAA9-48A8-4B8C-B19F-4DAC9F8A8C32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36A5BAA9-48A8-4B8C-B19F-4DAC9F8A8C32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36A5BAA9-48A8-4B8C-B19F-4DAC9F8A8C32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,6 +54,7 @@ Global
 		{AA985F5A-3A2F-47B5-960B-7975DDA7BE7D} = {4748A652-CFA0-4DC7-A116-1D5C33511776}
 		{088A77A5-6804-4590-BC8A-8A80DED0F394} = {B37A03D3-AD8B-4886-B12E-CA1C3B530E4E}
 		{C41B3153-E70A-4E9D-B058-26EA5B949823} = {2E2BF0E0-EE71-4565-8651-C47E3AEE300F}
+		{36A5BAA9-48A8-4B8C-B19F-4DAC9F8A8C32} = {B37A03D3-AD8B-4886-B12E-CA1C3B530E4E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {340D861F-5183-4E79-A2A6-36184D738273}

@@ -1,3 +1,5 @@
+using ImageGallery.Authorization;
+using ImageGallery.Client.MiddlerWare;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -10,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(configure => 
         configure.JsonSerializerOptions.PropertyNamingPolicy = null);
+
+builder.Services.AddTransient<GlobalExceptionHandler>();
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
@@ -51,15 +55,25 @@ builder.Services.AddAuthentication(opt =>
                                       opt.ClaimActions.DeleteClaim("sid");
                                       opt.ClaimActions.DeleteClaim("idp");
                                       opt.Scope.Add("roles");
-                                      opt.Scope.Add("imagegalleryapi.fullaccess");
+                                      //opt.Scope.Add("imagegalleryapi.fullaccess");
+                                      opt.Scope.Add("imagegalleryapi.read");
+                                      opt.Scope.Add("imagegalleryapi.write");
+                                      opt.Scope.Add("country");
                                       opt.ClaimActions.MapJsonKey("role", "role");
+                                      opt.ClaimActions.MapUniqueJsonKey("country", "country");
                                       opt.TokenValidationParameters = new()
                                       {
                                           NameClaimType = "given_name",
                                           RoleClaimType = "role",
                                       };
                                   });
-                
+
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("UserCanAddImage",
+                    AuthorizationPolicies.CanAddImage());
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -73,6 +87,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseMiddleware<GlobalExceptionHandler>();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -34,7 +34,8 @@ public static class TestUsers
                     {
                         new Claim(JwtClaimTypes.GivenName , "Ali"),
                         new Claim(JwtClaimTypes.FamilyName , "Alireza"),
-                        new Claim("role","FreeUser")
+                        new Claim("role","FreeUser"),
+                        new Claim("country" , "ne")
                     }
                 },
                 new TestUser
@@ -46,7 +47,8 @@ public static class TestUsers
                     {
                         new Claim(JwtClaimTypes.GivenName , "Ben"),
                         new Claim(JwtClaimTypes.FamilyName , "Benza"),
-                        new Claim("role","PayingUser")
+                        new Claim("role","PayingUser"),
+                        new Claim("country" , "be")
                     }
                 }
             };

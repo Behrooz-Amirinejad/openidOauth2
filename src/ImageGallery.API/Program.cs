@@ -1,6 +1,9 @@
+using ImageGallery.API.Authorization;
 using ImageGallery.API.DbContexts;
 using ImageGallery.API.Services;
+using ImageGallery.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using System.Xml;
@@ -19,7 +22,9 @@ builder.Services.AddDbContext<GalleryContext>(options =>
 });
 
 // register the repository
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IGalleryRepository, GalleryRepository>();
+builder.Services.AddScoped<IAuthorizationHandler, MustOwnImageHandler>();
 
 // register AutoMapper-related services
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -41,6 +46,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                         ValidTypes = new[] { "at+jwt" }
                     };
                 });
+
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("UserCanAddImage",
+                    AuthorizationPolicies.CanAddImage());
+
+    opt.AddPolicy("ClientApplicationCanWrite",
+                  policyBuilder =>
+                  {
+                      policyBuilder.RequireClaim("scope", "imagegalleryapi.write");
+                  });
+
+    opt.AddPolicy("MustOwenImage",
+        policyBuilder =>
+        {
+            policyBuilder.RequireAuthenticatedUser();
+            policyBuilder.AddRequirements(new MustOwnImageRequirment());
+        });
+});
 
 var app = builder.Build();
 
